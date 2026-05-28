@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   Heading,
+  Link,
   Text,
   TextArea,
   TextField,
@@ -77,6 +78,20 @@ export const SimulationInputs = ({
             />
           </Flex>
           <Button>Run simulation</Button>
+          <Box
+            style={{
+              background: 'var(--gray-3)',
+              borderRadius: 'var(--radius-3)',
+              padding: '8px 12px',
+            }}
+          >
+            <Text>
+              Want to learn more about the methodology?{' '}
+              <Link href="https://github.com/thawkin3/monte-carlo-simulation-project-timeline-estimator">
+                View the GitHub repo.
+              </Link>
+            </Text>
+          </Box>
         </Flex>
       </Box>
     </form>
