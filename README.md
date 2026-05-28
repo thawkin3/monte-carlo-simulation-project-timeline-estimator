@@ -37,7 +37,7 @@ Tired of people asking how long the project will take? Use some actual data and 
 
 ## How Monte Carlo Simulation Works (For Project Timeline Estimation)
 
-1. Collect historical throughput data that you think will closely resemble future throughput data.
+1. Collect historical throughput data that you think will closely resemble future throughput data. Your throughput data is how many tasks you completed per unit of time, like number of tasks completed each day.
 2. Define how many tasks you think you have remaining for the project.
 3. Randomly select a value from the historical throughput data. Subtract that number from the remaining tasks, and increment the count of days by one.
 4. Repeat step 3 until you reach zero tasks left.
