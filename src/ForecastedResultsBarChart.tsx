@@ -5,14 +5,17 @@ export const ForecastedResultsBarChart = ({
 }: {
   data: Array<number>;
 }) => {
-  const formattedDataObject = data.reduce((acc, currentValue) => {
-    if (acc[currentValue]) {
-      acc[currentValue]++;
-    } else {
-      acc[currentValue] = 1;
-    }
-    return acc;
-  }, {});
+  const formattedDataObject = data.reduce(
+    (acc: Record<number, number>, currentValue: number) => {
+      if (acc[currentValue]) {
+        acc[currentValue]++;
+      } else {
+        acc[currentValue] = 1;
+      }
+      return acc;
+    },
+    {}
+  );
 
   const formattedDataArray = Object.entries(formattedDataObject).map(
     ([key, value]) => ({ daysToComplete: key, timesResultOccurred: value })

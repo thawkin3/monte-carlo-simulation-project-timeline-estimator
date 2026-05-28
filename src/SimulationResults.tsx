@@ -3,7 +3,13 @@ import { Box, Flex, Heading, Text } from '@radix-ui/themes';
 import { ForecastedResultsBarChart } from './ForecastedResultsBarChart';
 import { Percentiles } from './Percentiles';
 
-export const SimulationResults = ({ simulationResults, unitOfTime }) => {
+export const SimulationResults = ({
+  simulationResults,
+  unitOfTime,
+}: {
+  simulationResults: Array<number>;
+  unitOfTime: string;
+}) => {
   return (
     <Flex direction="column" gap="4">
       <Heading as="h2">Simulation results</Heading>

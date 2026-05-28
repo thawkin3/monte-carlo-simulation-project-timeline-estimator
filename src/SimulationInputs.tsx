@@ -16,6 +16,10 @@ export const SimulationInputs = ({
   unitOfTime,
   setUnitOfTime,
   setSimulationResults,
+}: {
+  unitOfTime: string;
+  setUnitOfTime: React.Dispatch<React.SetStateAction<string>>;
+  setSimulationResults: React.Dispatch<React.SetStateAction<Array<number>>>;
 }) => {
   const [historicalData, setHistoricalData] = React.useState(
     '1,3,5,4,4,2,3,3,0,2,0,1'
@@ -25,7 +29,7 @@ export const SimulationInputs = ({
   const [numberOfSimulationsToRun, setNumberOfSimulationsToRun] =
     React.useState('10000');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
 
     const historicalDataArray = historicalData
