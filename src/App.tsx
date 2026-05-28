@@ -35,50 +35,47 @@ const ForecastedResultsBarChart = ({ data = [] }: { data: Array<number> }) => {
   );
 
   return (
-    <>
-      <Heading as="h2">Simulation results</Heading>
-      <BarChart
-        style={{
-          width: '100%',
-          maxWidth: '700px',
-          maxHeight: '70vh',
-          aspectRatio: 1.618,
+    <BarChart
+      style={{
+        width: '100%',
+        maxWidth: '700px',
+        maxHeight: '70vh',
+        aspectRatio: 1.618,
+      }}
+      responsive
+      data={formattedDataArray}
+      margin={{
+        top: 20,
+        right: 0,
+        left: 5,
+        bottom: 30,
+      }}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis
+        dataKey="daysToComplete"
+        label={{
+          value: 'Forecasted number of days to complete project',
+          position: 'insideBottom',
+          offset: -20,
         }}
-        responsive
-        data={formattedDataArray}
-        margin={{
-          top: 20,
-          right: 0,
-          left: 5,
-          bottom: 30,
+      />
+      <YAxis
+        dataKey="timesResultOccurred"
+        width="auto"
+        label={{
+          value: 'Number of forecasted occurrences',
+          angle: -90,
+          position: 'insideLeft',
+          textAnchor: 'middle',
         }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          dataKey="daysToComplete"
-          label={{
-            value: 'Forecasted number of days to complete project',
-            position: 'insideBottom',
-            offset: -20,
-          }}
-        />
-        <YAxis
-          dataKey="timesResultOccurred"
-          width="auto"
-          label={{
-            value: 'Number of forecasted occurrences',
-            angle: -90,
-            position: 'insideLeft',
-            textAnchor: 'middle',
-          }}
-        />
-        <Bar
-          dataKey="timesResultOccurred"
-          fill="var(--accent-9)"
-          radius={[4, 4, 0, 0]}
-        />
-      </BarChart>
-    </>
+      />
+      <Bar
+        dataKey="timesResultOccurred"
+        fill="var(--accent-9)"
+        radius={[4, 4, 0, 0]}
+      />
+    </BarChart>
   );
 };
 
@@ -93,27 +90,27 @@ const Percentiles = ({
     <Flex direction="column" gap="2">
       <Heading as="h2">When will the project be done?</Heading>
       <Text as="p">
-        <Text weight="bold">50th percentile:</Text> {getPercentile(data, 50)}{' '}
+        <Text weight="bold">50% confidence:</Text> {getPercentile(data, 50)}{' '}
         {unitOfTime}
       </Text>
       <Text as="p">
-        <Text weight="bold">85th percentile:</Text> {getPercentile(data, 85)}{' '}
+        <Text weight="bold">85% confidence:</Text> {getPercentile(data, 85)}{' '}
         {unitOfTime}
       </Text>
       <Text as="p">
-        <Text weight="bold">90th percentile:</Text> {getPercentile(data, 90)}{' '}
+        <Text weight="bold">90% confidence:</Text> {getPercentile(data, 90)}{' '}
         {unitOfTime}
       </Text>
       <Text as="p">
-        <Text weight="bold">95th percentile:</Text> {getPercentile(data, 95)}{' '}
+        <Text weight="bold">95% confidence:</Text> {getPercentile(data, 95)}{' '}
         {unitOfTime}
       </Text>
       <Text as="p">
-        <Text weight="bold">99th percentile:</Text> {getPercentile(data, 99)}{' '}
+        <Text weight="bold">99% confidence:</Text> {getPercentile(data, 99)}{' '}
         {unitOfTime}
       </Text>
       <Text as="p">
-        <Text weight="bold">100th percentile:</Text> {getPercentile(data, 100)}{' '}
+        <Text weight="bold">100% confidence:</Text> {getPercentile(data, 100)}{' '}
         {unitOfTime}
       </Text>
     </Flex>
@@ -152,56 +149,79 @@ export const App = () => {
   return (
     <Theme>
       <main>
-        <Container size="3">
-          <Flex direction="column" gap="4">
-            <Heading>
+        <Container size="4">
+          <Flex direction="column" gap="6">
+            <Heading size="8">
               Monte Carlo Simulation - Project Timeline Estimator
             </Heading>
-            <form onSubmit={handleSubmit}>
-              <Box maxWidth="480px">
+            <Flex direction={{ initial: 'column', md: 'row' }} gap="8">
+              <Box width={{ initial: '100%', md: '50%' }}>
+                <form onSubmit={handleSubmit}>
+                  <Box>
+                    <Flex direction="column" gap="4">
+                      <Heading as="h2">Simulation inputs</Heading>
+                      <Flex direction="column" gap="2">
+                        <Text as="label">Historical throughput data</Text>
+                        <TextArea
+                          value={historicalData}
+                          onChange={(e) => setHistoricalData(e.target.value)}
+                        />
+                      </Flex>
+                      <Flex direction="column" gap="2">
+                        <Text as="label">Unit of time</Text>
+                        <TextField.Root
+                          value={unitOfTime}
+                          onChange={(e) => setUnitOfTime(e.target.value)}
+                        />
+                      </Flex>
+                      <Flex direction="column" gap="2">
+                        <Text as="label">Number of tasks remaining</Text>
+                        <TextField.Root
+                          value={numberOfTasksRemaining}
+                          onChange={(e) =>
+                            setNumberOfTasksRemaining(e.target.value)
+                          }
+                        />
+                      </Flex>
+                      <Flex direction="column" gap="2">
+                        <Text as="label">Number of simulations to run</Text>
+                        <TextField.Root
+                          value={numberOfSimulationsToRun}
+                          onChange={(e) =>
+                            setNumberOfSimulationsToRun(e.target.value)
+                          }
+                        />
+                      </Flex>
+                      <Button>Run simulation</Button>
+                    </Flex>
+                  </Box>
+                </form>
+              </Box>
+              <Box width={{ initial: '100%', md: '50%' }}>
                 <Flex direction="column" gap="4">
-                  <Flex direction="column" gap="2">
-                    <Text as="label">Historical throughput data</Text>
-                    <TextArea
-                      value={historicalData}
-                      onChange={(e) => setHistoricalData(e.target.value)}
-                    />
-                  </Flex>
-                  <Flex direction="column" gap="2">
-                    <Text as="label">Unit of time</Text>
-                    <TextField.Root
-                      value={unitOfTime}
-                      onChange={(e) => setUnitOfTime(e.target.value)}
-                    />
-                  </Flex>
-                  <Flex direction="column" gap="2">
-                    <Text as="label">Number of tasks remaining</Text>
-                    <TextField.Root
-                      value={numberOfTasksRemaining}
-                      onChange={(e) =>
-                        setNumberOfTasksRemaining(e.target.value)
-                      }
-                    />
-                  </Flex>
-                  <Flex direction="column" gap="2">
-                    <Text as="label">Number of simulations to run</Text>
-                    <TextField.Root
-                      value={numberOfSimulationsToRun}
-                      onChange={(e) =>
-                        setNumberOfSimulationsToRun(e.target.value)
-                      }
-                    />
-                  </Flex>
-                  <Button>Run simulation</Button>
+                  <Heading as="h2">Simulation results</Heading>
+                  {simulationResults.length ? (
+                    <>
+                      <ForecastedResultsBarChart data={simulationResults} />
+                      <Percentiles
+                        data={simulationResults}
+                        unitOfTime={unitOfTime}
+                      />
+                    </>
+                  ) : (
+                    <Box
+                      style={{
+                        background: 'var(--gray-3)',
+                        borderRadius: 'var(--radius-3)',
+                        padding: '8px 12px',
+                      }}
+                    >
+                      <Text>Run the simulation to see the results.</Text>
+                    </Box>
+                  )}
                 </Flex>
               </Box>
-            </form>
-            {simulationResults.length ? (
-              <Flex direction="column" gap="4">
-                <ForecastedResultsBarChart data={simulationResults} />
-                <Percentiles data={simulationResults} unitOfTime={unitOfTime} />
-              </Flex>
-            ) : null}
+            </Flex>
           </Flex>
         </Container>
       </main>
