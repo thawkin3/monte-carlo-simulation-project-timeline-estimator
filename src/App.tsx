@@ -12,12 +12,15 @@ import {
 } from '@radix-ui/themes';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-import { runMonteCarloSimulationNTimes } from './monteCarloSimulation';
+import {
+  getPercentile,
+  runMonteCarloSimulationNTimes,
+} from './monteCarloSimulation';
 
 import '@radix-ui/themes/styles.css';
 import './App.css';
 
-const SimpleBarChart = ({ data = [] }) => {
+const ForecastedResultsBarChart = ({ data = [] }: { data: Array<number> }) => {
   const formattedDataObject = data.reduce((acc, currentValue) => {
     if (acc[currentValue]) {
       acc[currentValue]++;
@@ -32,66 +35,115 @@ const SimpleBarChart = ({ data = [] }) => {
   );
 
   return (
-    <BarChart
-      style={{
-        width: '100%',
-        maxWidth: '700px',
-        maxHeight: '400px',
-        aspectRatio: 1.618,
-      }}
-      responsive
-      data={formattedDataArray}
-      margin={{
-        top: 5,
-        right: 0,
-        left: 0,
-        bottom: 20,
-      }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis
-        dataKey="daysToComplete"
-        label={{
-          value: 'Forecasted number of days to complete project',
-          position: 'insideBottom',
-          offset: -10,
+    <>
+      <Heading as="h2">Simulation results</Heading>
+      <BarChart
+        style={{
+          width: '100%',
+          maxWidth: '700px',
+          maxHeight: '70vh',
+          aspectRatio: 1.618,
         }}
-      />
-      <YAxis
-        dataKey="timesResultOccurred"
-        width="auto"
-        label={{
-          value: 'Number of forecasted occurrences',
-          angle: -90,
-          position: 'middle',
-          offset: -40,
-          height: 80,
+        responsive
+        data={formattedDataArray}
+        margin={{
+          top: 20,
+          right: 0,
+          left: 5,
+          bottom: 30,
         }}
-      />
-      <Bar
-        dataKey="timesResultOccurred"
-        fill="var(--accent-9)"
-        radius={[4, 4, 0, 0]}
-      />
-    </BarChart>
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis
+          dataKey="daysToComplete"
+          label={{
+            value: 'Forecasted number of days to complete project',
+            position: 'insideBottom',
+            offset: -20,
+          }}
+        />
+        <YAxis
+          dataKey="timesResultOccurred"
+          width="auto"
+          label={{
+            value: 'Number of forecasted occurrences',
+            angle: -90,
+            position: 'insideLeft',
+            textAnchor: 'middle',
+          }}
+        />
+        <Bar
+          dataKey="timesResultOccurred"
+          fill="var(--accent-9)"
+          radius={[4, 4, 0, 0]}
+        />
+      </BarChart>
+    </>
+  );
+};
+
+const Percentiles = ({
+  data = [],
+  unitOfTime,
+}: {
+  data: Array<number>;
+  unitOfTime: string;
+}) => {
+  return (
+    <Flex direction="column" gap="2">
+      <Heading as="h2">When will the project be done?</Heading>
+      <Text as="p">
+        <Text weight="bold">50th percentile:</Text> {getPercentile(data, 50)}{' '}
+        {unitOfTime}
+      </Text>
+      <Text as="p">
+        <Text weight="bold">85th percentile:</Text> {getPercentile(data, 85)}{' '}
+        {unitOfTime}
+      </Text>
+      <Text as="p">
+        <Text weight="bold">90th percentile:</Text> {getPercentile(data, 90)}{' '}
+        {unitOfTime}
+      </Text>
+      <Text as="p">
+        <Text weight="bold">95th percentile:</Text> {getPercentile(data, 95)}{' '}
+        {unitOfTime}
+      </Text>
+      <Text as="p">
+        <Text weight="bold">99th percentile:</Text> {getPercentile(data, 99)}{' '}
+        {unitOfTime}
+      </Text>
+      <Text as="p">
+        <Text weight="bold">100th percentile:</Text> {getPercentile(data, 100)}{' '}
+        {unitOfTime}
+      </Text>
+    </Flex>
   );
 };
 
 export const App = () => {
-  const [historicalData, setHistoricalData] = React.useState('');
+  const [historicalData, setHistoricalData] = React.useState(
+    '1,3,5,4,4,2,3,3,0,2,0,1'
+  );
+  const [unitOfTime, setUnitOfTime] = React.useState('days');
   const [numberOfTasksRemaining, setNumberOfTasksRemaining] =
-    React.useState('');
-  const [simulationResults, setSimulationResults] = React.useState([]);
+    React.useState('100');
+  const [numberOfSimulationsToRun, setNumberOfSimulationsToRun] =
+    React.useState('10000');
+  const [simulationResults, setSimulationResults] = React.useState<
+    Array<number>
+  >([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const historicalDataArray = historicalData
       .split(',')
       .map((entry) => Number(entry.trim()));
+
     const results = runMonteCarloSimulationNTimes(
       historicalDataArray,
-      numberOfTasksRemaining,
-      10000
+      Number(numberOfTasksRemaining),
+      Number(numberOfSimulationsToRun)
     );
 
     setSimulationResults(results);
@@ -109,10 +161,17 @@ export const App = () => {
               <Box maxWidth="480px">
                 <Flex direction="column" gap="4">
                   <Flex direction="column" gap="2">
-                    <Text as="label">Historical data</Text>
+                    <Text as="label">Historical throughput data</Text>
                     <TextArea
                       value={historicalData}
                       onChange={(e) => setHistoricalData(e.target.value)}
+                    />
+                  </Flex>
+                  <Flex direction="column" gap="2">
+                    <Text as="label">Unit of time</Text>
+                    <TextField.Root
+                      value={unitOfTime}
+                      onChange={(e) => setUnitOfTime(e.target.value)}
                     />
                   </Flex>
                   <Flex direction="column" gap="2">
@@ -124,12 +183,26 @@ export const App = () => {
                       }
                     />
                   </Flex>
+                  <Flex direction="column" gap="2">
+                    <Text as="label">Number of simulations to run</Text>
+                    <TextField.Root
+                      value={numberOfSimulationsToRun}
+                      onChange={(e) =>
+                        setNumberOfSimulationsToRun(e.target.value)
+                      }
+                    />
+                  </Flex>
                   <Button>Run simulation</Button>
                 </Flex>
               </Box>
             </form>
+            {simulationResults.length ? (
+              <Flex direction="column" gap="4">
+                <ForecastedResultsBarChart data={simulationResults} />
+                <Percentiles data={simulationResults} unitOfTime={unitOfTime} />
+              </Flex>
+            ) : null}
           </Flex>
-          <SimpleBarChart data={simulationResults} />
         </Container>
       </main>
     </Theme>
